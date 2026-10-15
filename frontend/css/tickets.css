@@ -1,0 +1,34 @@
+/* CampusDesk · tickets.css — "Taller técnico" */
+.filters { background: var(--superficie); border: var(--borde); box-shadow: var(--sombra); padding: 14px; margin-bottom: 18px; display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+.filters .field { min-width: 150px; flex: 1; }
+.filters label { font-size: .78rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+/* Buscador amplio con lupa integrada. */
+.search-field { flex: 2 1 240px; }
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--tinta-suave); pointer-events: none; }
+.search-wrap input { padding-left: 34px; }
+.filter-group { display: flex; gap: 10px; flex: 3 1 320px; flex-wrap: wrap; }
+.filter-group .field { min-width: 130px; }
+/* Limpiar filtros: enlace sutil, visible solo con filtros activos. */
+.clear-link { background: none; border: none; color: var(--tinta); font-size: .85rem; font-weight: 600; cursor: pointer; padding: 10px 4px; min-height: 44px; white-space: nowrap; font-family: inherit; text-decoration: underline; }
+.clear-link:hover { background: var(--acento); }
+
+.detail-grid { display: grid; grid-template-columns: 1.5fr .9fr; gap: 14px; align-items: start; }
+.kv { display: grid; grid-template-columns: 160px 1fr; gap: 8px 14px; font-size: .92rem; }
+.kv dt { color: var(--tinta-suave); font-family: var(--font-mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; } .kv dd { margin: 0; font-weight: 600; }
+.timeline { list-style: none; margin: 14px 0 0; padding: 0; }
+.timeline li { position: relative; padding: 0 0 18px 28px; }
+.timeline li::before { content: ""; position: absolute; left: 8px; top: 20px; bottom: -2px; width: 1.5px; background: var(--tinta); }
+.timeline li:last-child::before { display: none; }
+.timeline .t-dot { position: absolute; left: 2px; top: 4px; width: 14px; height: 14px; background: var(--superficie); border: var(--borde); }
+.timeline li.current .t-dot { background: var(--acento); }
+.comment { border: var(--borde); box-shadow: var(--sombra-sm); padding: 12px 13px; margin-bottom: 10px; background: var(--superficie); }
+.comment-head { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; color: var(--tinta-suave); margin-bottom: 6px; }
+.comment-head b { color: var(--tinta); }
+
+@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+@media (max-width: 520px) {
+  .kv { grid-template-columns: 1fr; gap: 2px; }
+  .kv dd { margin-bottom: 8px; }
+  .filters .field { min-width: 100%; }
+}
