@@ -16,6 +16,7 @@
 BEGIN;
 
 -- Cleanup (allows re-running the script in development)
+DROP TABLE IF EXISTS ticket_feedback CASCADE;
 DROP TABLE IF EXISTS ticket_history CASCADE;
 DROP TABLE IF EXISTS comments       CASCADE;
 DROP TABLE IF EXISTS tickets        CASCADE;
@@ -105,6 +106,22 @@ CREATE TABLE comments (
 
 CREATE INDEX idx_comments_ticket_created ON comments (ticket_id, created_at ASC);
 CREATE INDEX idx_comments_author         ON comments (author_id);
+
+-- ---------------------------------------------------------------------
+-- TICKET_FEEDBACK  (rating given by requester when ticket is CERRADA)
+-- One-to-One with tickets (shared primary key).
+-- ---------------------------------------------------------------------
+CREATE TABLE ticket_feedback (
+    id              BIGINT       PRIMARY KEY,
+    puntuacion      SMALLINT     NOT NULL,
+    comentario      VARCHAR(500),
+    fecha_creacion  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_feedback_ticket
+        FOREIGN KEY (id) REFERENCES tickets (id) ON DELETE CASCADE,
+
+    CONSTRAINT ck_feedback_puntuacion CHECK (puntuacion BETWEEN 1 AND 5)
+);
 
 -- ---------------------------------------------------------------------
 -- TICKET_HISTORY  (status change history)

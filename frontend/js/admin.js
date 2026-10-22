@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("keydown", onTabKey);
   });
   document.getElementById("assignForm")?.addEventListener("submit", handleAssign);
+  document.getElementById("usersBody")?.addEventListener("click", handleUserAction);
 });
 
 async function loadAdmin() {
@@ -76,8 +77,27 @@ function renderUsers(users) {
   const body = document.getElementById("usersBody");
   if (body) body.innerHTML = users.length ? users.map((u) => `
     <tr><td class="cell-title">${ui.escapeHtml(u.fullName)}</td>
-    <td>${ui.escapeHtml(u.email)}</td><td><span class="badge cat">${ui.escapeHtml(u.role)}</span></td></tr>`).join("")
-    : `<tr><td colspan="3"><div class="empty">No hay usuarios registrados.</div></td></tr>`;
+    <td>${ui.escapeHtml(u.email)}</td><td><span class="badge cat">${ui.escapeHtml(u.role)}</span></td>
+    <td>${u.role === "USER" ? `<button class="btn btn-secondary btn-sm" type="button" data-promote-user="${u.id}">Promover a técnico</button>` : "—"}</td></tr>`).join("")
+    : `<tr><td colspan="4"><div class="empty">No hay usuarios registrados.</div></td></tr>`;
+}
+
+async function handleUserAction(e) {
+  const button = e.target.closest("[data-promote-user]");
+  if (!button) return;
+  const userId = button.dataset.promoteUser;
+  const ui = window.CampusDeskUI;
+  if (!window.confirm("¿Promover esta cuenta al rol TECHNICIAN? Podrá ver y gestionar los tickets que se le asignen.")) return;
+  button.disabled = true;
+  try {
+    await window.CampusDeskApi.promoteUserToTechnician(userId);
+    ui.showAlert("usersAlert", "Cuenta promovida a técnico correctamente.", "success");
+    await loadAdmin();
+  } catch (err) {
+    console.debug("[CampusDesk] Error al promover usuario:", err);
+    ui.showAlert("usersAlert", err.message || "No se pudo promover la cuenta.", "error");
+    button.disabled = false;
+  }
 }
 
 function fillAssignSelects(tickets, techs) {

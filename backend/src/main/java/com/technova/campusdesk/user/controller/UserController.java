@@ -5,6 +5,8 @@ import com.technova.campusdesk.user.service.UserService;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,5 +33,11 @@ public class UserController {
   @GetMapping
   public List<UserResponse> listAll() {
     return userService.listAll();
+  }
+
+  // Promotes an existing USER to TECHNICIAN. This controller is ADMIN only.
+  @PostMapping("/{id}/technician")
+  public UserResponse promoteToTechnician(@PathVariable Long id) {
+    return userService.promoteToTechnician(id);
   }
 }

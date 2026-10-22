@@ -83,10 +83,11 @@
 
       <section id="tab-usuarios" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-usuarios" tabindex="0" hidden>
         <div class="table-wrap"><table>
-          <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th></tr></thead>
+          <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acción</th></tr></thead>
           <tbody id="usersBody"></tbody>
         </table></div>
-        <p class="muted" style="font-size:.85rem">Los roles los gestiona el backend. El frontend solo los muestra.</p>
+        <div id="usersAlert" class="alert" role="alert" style="margin-top:12px"></div>
+        <p class="muted" style="font-size:.85rem">Solo una cuenta ADMIN puede promover una cuenta USER a TECHNICIAN. Esta acción cambia sus permisos en la aplicación.</p>
       </section>
 
       <section id="tab-stats" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-stats" tabindex="0" hidden>
@@ -98,8 +99,8 @@
 </div>
 
 <script src="../js/config.js?v=4"></script>
-<script src="../js/api.js?v=4"></script>
+<script src="../js/api.js?v=5"></script>
 <script src="../js/ui.js?v=4"></script>
-<script src="../js/admin.js?v=4"></script>
+<script src="../js/admin.js?v=5"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.technova.campusdesk.exception;
 
 import com.technova.campusdesk.exception.ApiError;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -44,10 +45,17 @@ public class GlobalExceptionHandler {
     return build(HttpStatus.BAD_REQUEST, ex.getMessage());
   }
 
-  // Badly shaped input (@NotBlank validations, malformed JSON,
-  // wrong enums or ids...) -> 400.
-  @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
-      TypeMismatchException.class})
+  // Validation errors (@Min, @Max, @Size, @NotBlank, etc.) -> 400 with field details.
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
+    List<String> details = ex.getBindingResult().getFieldErrors().stream()
+        .map(e -> e.getField() + ": " + e.getDefaultMessage())
+        .collect(Collectors.toList());
+    return buildWithDetails(HttpStatus.BAD_REQUEST, "Los datos enviados no son validos", details);
+  }
+
+  // Badly shaped input (malformed JSON, wrong enums or ids...) -> 400.
+  @ExceptionHandler({HttpMessageNotReadableException.class, TypeMismatchException.class})
   public ResponseEntity<ApiError> handleInvalidInput(Exception ex) {
     return build(HttpStatus.BAD_REQUEST, "Los datos enviados no son validos");
   }
@@ -66,6 +74,11 @@ public class GlobalExceptionHandler {
 
   // Builds the response with the given status and message.
   private ResponseEntity<ApiError> build(HttpStatus status, String message) {
-    return ResponseEntity.status(status).body(ApiError.of(status, message, null, List.of()));
+    return buildWithDetails(status, message, List.of());
+  }
+
+  // Builds the response with status, message and validation details.
+  private ResponseEntity<ApiError> buildWithDetails(HttpStatus status, String message, List<String> details) {
+    return ResponseEntity.status(status).body(ApiError.of(status, message, null, details));
   }
 }

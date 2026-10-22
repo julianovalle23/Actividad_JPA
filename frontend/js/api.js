@@ -109,6 +109,9 @@ const api = (() => {
     // --- Admin ---
     listUsers() { return request("/users"); },
     listTechnicians() { return request("/users/technicians"); },
+    promoteUserToTechnician(userId) {
+      return request(`/users/${userId}/technician`, { method: "POST" });
+    },
     assignTechnician(ticketId, technicianId) {
       return request(`/tickets/${ticketId}/assign`, {
         method: "PATCH", body: JSON.stringify({ technicianId }),
