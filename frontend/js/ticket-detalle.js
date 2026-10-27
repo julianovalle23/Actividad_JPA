@@ -59,7 +59,7 @@ async function renderDetail() {
     if (closed) { commentBox.disabled = true; commentBtn.disabled = true; }
 
     renderComments(comments.map((c) => ui.normalizeComment(c)));
-    renderHistory(history, t.estado);
+    renderHistory(history);
     renderActions(raw);
   } catch (err) {
     console.debug("[CampusDesk] Error en detalle:", err);
@@ -172,29 +172,30 @@ function renderComments(comments) {
   const list = ui.el("commentsList");
   list.innerHTML = comments.length ? comments.map((c) => `
     <div class="comment">
-      <div class="comment-head"><b>${ui.escapeHtml(c.autor)}</b><span>${ui.formatDate(c.fecha)}</span></div>
+      <div class="comment-head"><b>${ui.escapeHtml(c.autor)}</b><span>${ui.formatDateTime(c.fecha)}</span></div>
       <div>${ui.escapeHtml(c.contenido)}</div>
     </div>`).join("")
     : `<div class="empty">Este ticket aún no tiene comentarios.</div>`;
 }
 
-// Flujo con los estados realmente alcanzados (solo lectura).
-function renderHistory(events, currentEstado) {
+// Historial real del backend en orden cronológico (solo lectura):
+// cada cambio con estado anterior → nuevo, quién lo hizo y cuándo.
+// Incluye las reasignaciones (ASIGNADA → ASIGNADA).
+function renderHistory(events) {
   const ui = window.CampusDeskUI;
-  const flow = ["ABIERTA", "ASIGNADA", "EN_PROCESO", "RESUELTA", "CERRADA"];
-  const reached = new Set(events.map((e) => e.newStatus));
-  reached.add(currentEstado);
-  const dateOf = (s) => {
-    const ev = [...events].reverse().find((e) => e.newStatus === s);
-    return ev ? ui.formatDate(ev.changedAt) : null;
-  };
-  ui.el("historyList").innerHTML = flow.map((s) => {
-    const isCurrent = s === currentEstado;
-    const wasReached = reached.has(s);
-    const cls = isCurrent ? "current" : wasReached ? "done" : "";
-    const date = dateOf(s);
-    return `<li class="${cls}"><span class="t-dot" aria-hidden="true"></span>${ui.statusBadge(s)}
-      <div class="cell-sub">${isCurrent ? "Estado actual" : wasReached && date ? date : "Flujo general"}</div></li>`;
+  const list = ui.el("historyList");
+  if (!events.length) {
+    list.innerHTML = `<li><span class="t-dot" aria-hidden="true"></span><div class="cell-sub">Sin cambios registrados.</div></li>`;
+    return;
+  }
+  list.innerHTML = events.map((e, i) => {
+    const isLast = i === events.length - 1;
+    const from = e.previousStatus ? `${ui.statusBadge(e.previousStatus)} → ` : "";
+    const label = e.previousStatus === null ? "Creado"
+      : e.previousStatus === e.newStatus ? "Reasignado" : "Cambio de estado";
+    return `<li class="${isLast ? "current" : "done"}"><span class="t-dot" aria-hidden="true"></span>
+      ${from}${ui.statusBadge(e.newStatus)}
+      <div class="cell-sub">${label} por ${ui.escapeHtml(e.changedBy?.fullName || "—")} · ${ui.formatDateTime(e.changedAt)}</div></li>`;
   }).join("");
 }
 
@@ -215,8 +216,7 @@ async function handleComment(e) {
     await api.addComment(ticketIdFromUrl(), box.value.trim());
     box.value = "";
     ui.hideAlert("commentAlert");
-    renderComments((await api.getComments(ticketIdFromUrl())).map((c) => ui.normalizeComment(c)));
-  } catch (err) {
+    renderComments((await api.getComments(ticketIdFromUrl())).map((c) => ui.normalizeComment(c)));  } catch (err) {
     console.debug("[CampusDesk] Error en comentario:", err);
     ui.showAlert("commentAlert", err.message || "No se pudo enviar el comentario.", "error");
   } finally {

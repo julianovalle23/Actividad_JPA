@@ -54,6 +54,16 @@ const ui = (() => {
     return d.toLocaleDateString("es-ES", { year: "numeric", month: "short", day: "numeric" });
   }
 
+  // Fecha y hora (comentarios e historial: varios eventos pueden caer el mismo día).
+  function formatDateTime(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso);
+    return d.toLocaleString("es-ES", {
+      year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+    });
+  }
+
   function openModal(id) { el(id)?.classList.add("open"); }
   function closeModal(id) { el(id)?.classList.remove("open"); }
 
@@ -224,7 +234,7 @@ const ui = (() => {
   return {
     el, showAlert, hideAlert, setLoading, delay,
     statusBadge, priorityBadge, categoryBadge,
-    formatDate, openModal, closeModal, escapeHtml, initials, techLabel, authorCell, ticketCard,
+    formatDate, formatDateTime, openModal, closeModal, escapeHtml, initials, techLabel, authorCell, ticketCard,
     getPreviewRole, applyRoleVisibility, initSidebar, preserveRoleInLinks, pageDate,
     normalizeTicket, normalizeComment, initLogout,
   };

@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
     location.href = "login.html";
     return;
   }
+  // Solo ADMIN usa este panel (el backend responde 403 de todas formas).
+  if (window.CampusDeskApi.getSessionUser()?.role !== "ADMIN") {
+    location.href = "dashboard.html";
+    return;
+  }
   loadAdmin();
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
@@ -171,5 +176,5 @@ function renderAdminLoadError(message) {
   const tech = document.getElementById("techBody");
   if (tech) tech.innerHTML = errorRow(3, "Técnicos no disponibles por un error de carga.");
   const usersBody = document.getElementById("usersBody");
-  if (usersBody) usersBody.innerHTML = errorRow(3, "Usuarios no disponibles por un error de carga.");
+  if (usersBody) usersBody.innerHTML = errorRow(4,"Usuarios no disponibles por un error de carga.");
 }
