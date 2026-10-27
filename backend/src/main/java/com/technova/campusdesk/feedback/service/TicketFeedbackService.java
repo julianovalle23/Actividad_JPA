@@ -19,7 +19,7 @@ import com.technova.campusdesk.security.AuthUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Business logic for ticket feedback.
+/** Business logic for ticket feedback. */
 @Service
 public class TicketFeedbackService {
 
@@ -35,7 +35,7 @@ public class TicketFeedbackService {
     this.userRepository = userRepository;
   }
 
-  // Creates feedback for a closed ticket. Only the requester can do it.
+  /** Creates feedback for a closed ticket. Only the requester can do it. */
   @Transactional
   public FeedbackResponse createFeedback(Long ticketId, FeedbackRequest request, AuthUser actor) {
     // 1. Load ticket
@@ -65,7 +65,7 @@ public class TicketFeedbackService {
     return FeedbackResponse.from(saved);
   }
 
-  // Returns average rating for a technician. ADMIN only.
+  /** Returns average rating for a technician. ADMIN only. */
   @Transactional(readOnly = true)
   public TechnicianRatingResponse getTechnicianAverageRating(Long technicianId, AuthUser actor) {
     // Only ADMIN can access this endpoint
@@ -88,7 +88,7 @@ public class TicketFeedbackService {
     return feedbackRepository.findAverageRatingByTechnicianId(technicianId);
   }
 
-  // True when the actor reported the ticket.
+  /** True when the actor reported the ticket. */
   private boolean isRequester(Ticket ticket, AuthUser actor) {
     return ticket.getRequester() != null && ticket.getRequester().getId().equals(actor.id());
   }

@@ -1,6 +1,6 @@
 package com.technova.campusdesk.ticket.entity;
 
-// Accepted incident types.
+/** Accepted incident types. */
 public enum TicketCategory {
   HARDWARE,
   SOFTWARE,

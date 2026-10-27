@@ -8,18 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-// Access to ticket_feedback table.
+/** Access to ticket_feedback table. */
 @Repository
 public interface TicketFeedbackRepository extends JpaRepository<TicketFeedback, Long> {
 
-  // Checks if feedback already exists for a ticket.
-  boolean existsById(Long ticketId);
-
-  // Finds feedback by ticket id.
+  /** Finds feedback by ticket id. */
   @Query("SELECT f FROM TicketFeedback f WHERE f.ticket.id = :ticketId")
   TicketFeedback findByTicketId(@Param("ticketId") Long ticketId);
 
-  // Calculates average rating and count for a technician.
+  /** Calculates average rating and count for a technician. */
   @Query("SELECT new com.technova.campusdesk.feedback.dto.TechnicianRatingResponse(" +
          "   t.technician.id, " +
          "   t.technician.fullName, " +
@@ -32,7 +29,7 @@ public interface TicketFeedbackRepository extends JpaRepository<TicketFeedback, 
          "GROUP BY t.technician.id, t.technician.fullName")
   TechnicianRatingResponse findAverageRatingByTechnicianId(@Param("technicianId") Long technicianId);
 
-  // Checks if a technician has any rated tickets.
+  /** Checks if a technician has any rated tickets. */
   @Query("SELECT COUNT(f) > 0 FROM TicketFeedback f JOIN f.ticket t WHERE t.technician.id = :technicianId")
   boolean hasRatingsForTechnician(@Param("technicianId") Long technicianId);
 }

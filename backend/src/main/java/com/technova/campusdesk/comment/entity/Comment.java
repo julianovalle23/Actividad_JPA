@@ -4,6 +4,7 @@ import com.technova.campusdesk.ticket.entity.Ticket;
 import com.technova.campusdesk.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,32 +14,34 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
-// Comment inside a ticket. Never edited: only created.
-// Indexes are created by schema.sql (not duplicated here).
+/**
+ * Comment inside a ticket. Never edited: only created.
+ * Indexes are created by schema.sql (not duplicated here).
+ */
 @Entity
 @Table(name = "comments")
 public class Comment {
 
-  // Auto-generated identifier.
+  /** Auto-generated identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  // Comment text.
+  /** Comment text. */
   @Column(nullable = false, length = 2000)
   private String content;
 
-  // Who wrote it (cannot change afterwards).
-  @ManyToOne(optional = false)
+  /** Who wrote it (cannot change afterwards). */
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "author_id", nullable = false, updatable = false)
   private User author;
 
-  // Ticket it belongs to (cannot change afterwards).
-  @ManyToOne(optional = false)
+  /** Ticket it belongs to (cannot change afterwards). */
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "ticket_id", nullable = false, updatable = false)
   private Ticket ticket;
 
-  // Creation date, set automatically.
+  /** Creation date, set automatically. */
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
@@ -52,7 +55,7 @@ public class Comment {
     this.content = content;
   }
 
-  // Sets the date right before saving.
+  /** Sets the date right before saving. */
   @PrePersist
   void onCreate() {
     createdAt = Instant.now();

@@ -18,7 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-// Security rules: what is public, JWT without sessions, and limited CORS.
+/** Security rules: what is public, JWT without sessions, and limited CORS. */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // enables the controllers' @PreAuthorize
@@ -40,13 +40,13 @@ public class SecurityConfig {
     this.allowedOrigins = allowedOrigins;
   }
 
-  // Password encryptor (BCrypt).
+  /** Password encryptor (BCrypt). */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
-  // Spring Security filter chain.
+  /** Spring Security filter chain. */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -58,7 +58,8 @@ public class SecurityConfig {
             .accessDeniedHandler(deniedHandler)) // JSON 403
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS preflight
-            .requestMatchers("/api/auth/**").permitAll() // login and register
+            // Only login and register are public; /api/auth/me needs a token.
+            .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/system/status").permitAll() // setup diagnostics
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
             .anyRequest().authenticated()) // everything else needs a token
@@ -67,7 +68,7 @@ public class SecurityConfig {
     return http.build();
   }
 
-  // Only accepts requests from the given frontend (no wildcards).
+  /** Only accepts requests from the given frontend (no wildcards). */
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     List<String> origins = Arrays.stream(allowedOrigins.split(","))

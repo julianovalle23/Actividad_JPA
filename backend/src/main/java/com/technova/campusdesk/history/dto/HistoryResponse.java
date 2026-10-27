@@ -5,7 +5,7 @@ import com.technova.campusdesk.ticket.entity.TicketStatus;
 import com.technova.campusdesk.user.dto.UserSummary;
 import java.time.Instant;
 
-// Status-change view with who made it.
+/** Status-change view with who made it. */
 public record HistoryResponse(
     Long id,
     Long ticketId,
@@ -14,7 +14,7 @@ public record HistoryResponse(
     UserSummary changedBy,
     Instant changedAt) {
 
-  // Converts the entity into a response.
+  /** Converts the entity into a response. */
   public static HistoryResponse from(StatusHistory history) {
     return new HistoryResponse(history.getId(), history.getTicket().getId(),
         history.getPreviousStatus(), history.getNewStatus(),

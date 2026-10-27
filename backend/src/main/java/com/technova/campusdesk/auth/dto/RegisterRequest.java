@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-// Data for creating an account. No role field: always born USER.
+/** Data for creating an account. No role field: always born USER. */
 public record RegisterRequest(
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 100, message = "El nombre es muy largo")
@@ -16,7 +16,7 @@ public record RegisterRequest(
     @Size(max = 150, message = "El correo es muy largo")
     String email,
 
-    // 8-64 chars with uppercase, lowercase and digit.
+    /** 8-64 chars with uppercase, lowercase and digit. */
     @NotBlank(message = "La clave es obligatoria")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,64}$",
         message = "La clave necesita mayuscula, minuscula y numero")

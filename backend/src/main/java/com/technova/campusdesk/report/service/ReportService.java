@@ -10,18 +10,18 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Dashboard numbers, counted in the database.
+/** Dashboard numbers, counted in the database. */
 @Service
 public class ReportService {
 
   private final TicketRepository tickets;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public ReportService(TicketRepository tickets) {
     this.tickets = tickets;
   }
 
-  // ADMIN sees system totals; other roles only their allowed tickets.
+  /** ADMIN sees system totals; other roles only their allowed tickets. */
   @Transactional(readOnly = true)
   public SummaryResponse summary(AuthUser actor) {
     Specification<Ticket> scope = TicketSpecifications.visibleTo(actor.id(), actor.role());
@@ -34,7 +34,7 @@ public class ReportService {
         countByStatus(scope, TicketStatus.CERRADA));
   }
 
-  // Counts in-scope tickets sitting in one status.
+  /** Counts in-scope tickets sitting in one status. */
   private long countByStatus(Specification<Ticket> scope, TicketStatus status) {
     return tickets.count(scope.and(TicketSpecifications.hasStatus(status)));
   }

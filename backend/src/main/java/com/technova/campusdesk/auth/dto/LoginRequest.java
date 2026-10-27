@@ -2,7 +2,7 @@ package com.technova.campusdesk.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-// Login input data.
+/** Login input data. */
 public record LoginRequest(
     @NotBlank(message = "El correo es obligatorio")
     String email,

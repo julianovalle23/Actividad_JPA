@@ -11,8 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-// Creates the ADMIN and TECHNICIAN accounts on startup (registration only makes USER).
-// Only acts when their email and password are defined in the environment.
+/**
+ * Creates the ADMIN and TECHNICIAN accounts on startup (registration only makes USER).
+ * Only acts when their email and password are defined in the environment.
+ */
 @Configuration
 public class DataInitializer {
 
@@ -21,7 +23,7 @@ public class DataInitializer {
   private final UserRepository users;
   private final PasswordEncoder passwords;
 
-  // Seed names, emails and passwords (empty = skip that role).
+  /** Seed names, emails and passwords (empty = skip that role). */
   @Value("${app.seed.admin-name:}")
   private String adminName;
   @Value("${app.seed.admin-email:}")
@@ -40,7 +42,7 @@ public class DataInitializer {
     this.passwords = passwords;
   }
 
-  // Runs once when the application starts.
+  /** Runs once when the application starts. */
   @Bean
   public ApplicationRunner seedAccounts() {
     return args -> {
@@ -49,7 +51,7 @@ public class DataInitializer {
     };
   }
 
-  // Creates the account when email and password exist and it is not a duplicate.
+  /** Creates the account when email and password exist and it is not a duplicate. */
   private void seed(String name, String email, String password, Role role) {
     if (email == null || email.isBlank() || password == null || password.isBlank()) {
       log.info("No se aprovisiona el rol {} (faltan variables de entorno)", role);

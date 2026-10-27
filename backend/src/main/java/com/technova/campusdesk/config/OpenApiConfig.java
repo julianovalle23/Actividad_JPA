@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
-// Swagger title + "Authorize" button with JWT token.
+/** Swagger title + "Authorize" button with JWT token. */
 @Configuration
 @OpenAPIDefinition(
     info = @Info(title = "CampusDesk API", version = "1.0.0",

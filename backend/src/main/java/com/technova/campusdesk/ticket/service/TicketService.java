@@ -29,13 +29,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Ticket business rules: role permissions and controlled lifecycle.
-// Each status change and its history record are saved in one transaction.
+/**
+ * Ticket business rules: role permissions and controlled lifecycle.
+ * Each status change and its history record are saved in one transaction.
+ */
 @Service
 public class TicketService {
 
-  // Single allowed step out of each status. CERRADA is final.
-  // ABIERTA -> ASIGNADA only happens via assign(), never via changeStatus().
+  /**
+   * Single allowed step out of each status. CERRADA is final.
+   * ABIERTA -> ASIGNADA only happens via assign(), never via changeStatus().
+   */
   private static final Map<TicketStatus, TicketStatus> NEXT_STATUS = Map.of(
       TicketStatus.ABIERTA, TicketStatus.ASIGNADA,
       TicketStatus.ASIGNADA, TicketStatus.EN_PROCESO,
@@ -46,7 +50,7 @@ public class TicketService {
   private final UserRepository users;
   private final StatusHistoryRepository history;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public TicketService(TicketRepository tickets, UserRepository users,
       StatusHistoryRepository history) {
     this.tickets = tickets;
@@ -54,7 +58,7 @@ public class TicketService {
     this.history = history;
   }
 
-  // Lists tickets visible by role, with optional filters.
+  /** Lists tickets visible by role, with optional filters. */
   @Transactional(readOnly = true)
   public List<TicketResponse> list(AuthUser actor, TicketStatus status,
       TicketPriority priority, TicketCategory category) {
@@ -66,13 +70,13 @@ public class TicketService {
     return tickets.findAll(filter, newestFirst).stream().map(TicketResponse::from).toList();
   }
 
-  // Ticket detail (only with access).
+  /** Ticket detail (only with access). */
   @Transactional(readOnly = true)
   public TicketResponse get(Long ticketId, AuthUser actor) {
     return TicketResponse.from(findAccessibleTicket(ticketId, actor));
   }
 
-  // Ticket history, oldest change first.
+  /** Ticket history, oldest change first. */
   @Transactional(readOnly = true)
   public List<HistoryResponse> getHistory(Long ticketId, AuthUser actor) {
     findAccessibleTicket(ticketId, actor);
@@ -80,7 +84,7 @@ public class TicketService {
         .stream().map(HistoryResponse::from).toList();
   }
 
-  // Creates a ticket. USER only; born ABIERTA with no technician.
+  /** Creates a ticket. USER only; born ABIERTA with no technician. */
   @Transactional
   public TicketResponse create(TicketRequest request, AuthUser actor) {
     if (actor.role() != Role.USER) {
@@ -96,7 +100,7 @@ public class TicketService {
     return TicketResponse.from(saved);
   }
 
-  // Edits a ticket. Only the requester, while still ABIERTA with no technician.
+  /** Edits a ticket. Only the requester, while still ABIERTA with no technician. */
   @Transactional
   public TicketResponse update(Long ticketId, TicketRequest request, AuthUser actor) {
     Ticket ticket = findAccessibleTicket(ticketId, actor);
@@ -110,7 +114,19 @@ public class TicketService {
     return TicketResponse.from(tickets.saveAndFlush(ticket));
   }
 
-  // Assigns or reassigns a technician. ADMIN only, on ABIERTA or ASIGNADA tickets.
+  /**
+   * Assigns or reassigns a technician. ADMIN only, on ABIERTA or ASIGNADA tickets.
+   * The ticket update and its history row are committed together or not at all.
+   *
+   * @param ticketId ticket to assign
+   * @param request  id of the target technician
+   * @param actor    authenticated user (must be ADMIN)
+   * @return the ticket in ASIGNADA status with its new technician
+   * @throws ForbiddenException        if the actor is not ADMIN (403)
+   * @throws ResourceNotFoundException if the ticket or the technician does not exist (404)
+   * @throws BadRequestException       if the target user is not a TECHNICIAN (400)
+   * @throws BusinessRuleException     if the ticket is already in progress or assigned to them (409)
+   */
   @Transactional
   public TicketResponse assign(Long ticketId, AssignRequest request, AuthUser actor) {
     if (actor.role() != Role.ADMIN) {
@@ -141,7 +157,25 @@ public class TicketService {
     return TicketResponse.from(saved);
   }
 
-  // Moves status one step. First checks who may do it (403), then the step (409).
+  /**
+   * Moves the ticket exactly one step in the lifecycle
+   * {@code ABIERTA -> ASIGNADA -> EN_PROCESO -> RESUELTA -> CERRADA}.
+   * First checks who may do it (403), then that the step is the next one (409).
+   * The ticket update and its history row are committed together or not at all.
+   *
+   * <ul>
+   *   <li>EN_PROCESO and RESUELTA: only the assigned TECHNICIAN.</li>
+   *   <li>CERRADA: only the requester (USER), from RESUELTA.</li>
+   *   <li>ASIGNADA: never here, only through {@link #assign}.</li>
+   * </ul>
+   *
+   * @param ticketId ticket to move
+   * @param request  target status
+   * @param actor    authenticated user
+   * @return the ticket in its new status
+   * @throws ForbiddenException    if the actor may not set that status (403)
+   * @throws BusinessRuleException if the target is not the next step of the cycle (409)
+   */
   @Transactional
   public TicketResponse changeStatus(Long ticketId, StatusChangeRequest request, AuthUser actor) {
     Ticket ticket = findAccessibleTicket(ticketId, actor);
@@ -170,8 +204,17 @@ public class TicketService {
     return TicketResponse.from(saved);
   }
 
-  // Finds a ticket and confirms the actor may see it.
-  // ADMIN sees any; TECHNICIAN the assigned ones; USER the own ones.
+  /**
+   * Finds a ticket and confirms the actor may see it (data isolation by role).
+   * ADMIN sees any; TECHNICIAN the assigned ones; USER the own ones.
+   * Runs inside the caller's transaction.
+   *
+   * @param ticketId ticket to load
+   * @param actor    authenticated user
+   * @return the ticket entity, only for use inside the service layer
+   * @throws ResourceNotFoundException if the ticket does not exist (404)
+   * @throws ForbiddenException        if the actor may not see it (403)
+   */
   public Ticket findAccessibleTicket(Long ticketId, AuthUser actor) {
     Ticket ticket = tickets.findById(ticketId)
         .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado"));
@@ -186,7 +229,7 @@ public class TicketService {
     return ticket;
   }
 
-  // Copies title, description, category and priority (trimmed).
+  /** Copies title, description, category and priority (trimmed). */
   private void applyRequest(Ticket ticket, TicketRequest request) {
     ticket.setTitle(request.title().trim());
     ticket.setDescription(request.description().trim());
@@ -194,23 +237,23 @@ public class TicketService {
     ticket.setPriority(request.priority());
   }
 
-  // Loads a user or answers 404.
+  /** Loads a user or answers 404. */
   private User loadUser(Long userId) {
     return users.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
   }
 
-  // Saves one history row (null previous = creation).
+  /** Saves one history row (null previous = creation). */
   private void recordHistory(Ticket ticket, TicketStatus previous, TicketStatus next, User changedBy) {
     history.save(new StatusHistory(ticket, previous, next, changedBy));
   }
 
-  // True when the actor reported the ticket.
+  /** True when the actor reported the ticket. */
   private boolean isRequester(Ticket ticket, AuthUser actor) {
     return Objects.equals(ticket.getRequester().getId(), actor.id());
   }
 
-  // True when the actor is the assigned technician.
+  /** True when the actor is the assigned technician. */
   private boolean isAssignedTechnician(Ticket ticket, AuthUser actor) {
     return ticket.getTechnician() != null
         && Objects.equals(ticket.getTechnician().getId(), actor.id());

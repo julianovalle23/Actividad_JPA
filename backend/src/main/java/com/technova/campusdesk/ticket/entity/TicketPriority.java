@@ -1,6 +1,6 @@
 package com.technova.campusdesk.ticket.entity;
 
-// Ticket urgency level.
+/** Ticket urgency level. */
 public enum TicketPriority {
   BAJA,
   MEDIA,

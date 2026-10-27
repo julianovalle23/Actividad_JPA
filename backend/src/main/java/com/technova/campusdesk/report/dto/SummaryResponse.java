@@ -1,6 +1,6 @@
 package com.technova.campusdesk.report.dto;
 
-// Dashboard counts: total + each status.
+/** Dashboard counts: total + each status. */
 public record SummaryResponse(
     long total,
     long abiertas,

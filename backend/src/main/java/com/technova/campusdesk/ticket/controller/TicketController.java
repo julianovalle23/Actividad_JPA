@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// Ticket operations. The rules live in the services.
+/** Ticket operations. The rules live in the services. */
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
@@ -38,13 +38,13 @@ public class TicketController {
   private final TicketService ticketService;
   private final CommentService commentService;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public TicketController(TicketService ticketService, CommentService commentService) {
     this.ticketService = ticketService;
     this.commentService = commentService;
   }
 
-  // Lists role-visible tickets, with optional filters.
+  /** Lists role-visible tickets, with optional filters. */
   @GetMapping
   public List<TicketResponse> list(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -54,7 +54,7 @@ public class TicketController {
     return ticketService.list(actor, status, priority, category);
   }
 
-  // Ticket detail.
+  /** Ticket detail. */
   @GetMapping("/{id}")
   public TicketResponse get(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -62,7 +62,7 @@ public class TicketController {
     return ticketService.get(id, actor);
   }
 
-  // Creates a ticket (born ABIERTA). USER only.
+  /** Creates a ticket (born ABIERTA). USER only. */
   @PostMapping
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<TicketResponse> create(
@@ -72,7 +72,7 @@ public class TicketController {
         .body(ticketService.create(request, actor));
   }
 
-  // Edits a ticket (requester only, ABIERTA with no technician).
+  /** Edits a ticket (requester only, ABIERTA with no technician). */
   @PutMapping("/{id}")
   public TicketResponse update(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -81,7 +81,7 @@ public class TicketController {
     return ticketService.update(id, request, actor);
   }
 
-  // Assigns or reassigns a technician (moves to ASIGNADA). ADMIN only.
+  /** Assigns or reassigns a technician (moves to ASIGNADA). ADMIN only. */
   @PatchMapping("/{id}/assign")
   @PreAuthorize("hasRole('ADMIN')")
   public TicketResponse assign(
@@ -91,7 +91,7 @@ public class TicketController {
     return ticketService.assign(id, request, actor);
   }
 
-  // Moves status one step (assigned technician or requester, per target).
+  /** Moves status one step (assigned technician or requester, per target). */
   @PatchMapping("/{id}/status")
   public TicketResponse changeStatus(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -100,7 +100,7 @@ public class TicketController {
     return ticketService.changeStatus(id, request, actor);
   }
 
-  // Ticket comments, in chronological order.
+  /** Ticket comments, in chronological order. */
   @GetMapping("/{id}/comments")
   public List<CommentResponse> listComments(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -108,7 +108,7 @@ public class TicketController {
     return commentService.list(id, actor);
   }
 
-  // Adds a comment (not on CERRADA tickets). Answers 201.
+  /** Adds a comment (not on CERRADA tickets). Answers 201. */
   @PostMapping("/{id}/comments")
   public ResponseEntity<CommentResponse> addComment(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,
@@ -118,7 +118,7 @@ public class TicketController {
         .body(commentService.add(id, request, actor));
   }
 
-  // Status-change history of the ticket.
+  /** Status-change history of the ticket. */
   @GetMapping("/{id}/history")
   public List<HistoryResponse> getHistory(
       @Parameter(hidden = true) @AuthenticationPrincipal AuthUser actor,

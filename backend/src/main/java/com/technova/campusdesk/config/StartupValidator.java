@@ -16,19 +16,23 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-// Fail-fast startup checks. The backend verifies its own environment on
-// boot (JWT secret, database connectivity, schema tables) and explains
-// exactly what is missing instead of failing with a cryptic error.
+/**
+ * Fail-fast startup checks. The backend verifies its own environment on
+ * boot (JWT secret, database connectivity, schema tables) and explains
+ * exactly what is missing instead of failing with a cryptic error.
+ */
 @Component
 @Order(1)
 public class StartupValidator implements ApplicationRunner {
 
   private static final Logger log = LoggerFactory.getLogger(StartupValidator.class);
 
-  // Tables created by database/schema.sql (the single source of truth).
-  // Hibernate only validates them (ddl-auto=validate), never creates them.
+  /**
+   * Tables created by database/schema.sql (the single source of truth).
+   * Hibernate only validates them (ddl-auto=validate), never creates them.
+   */
   public static final List<String> REQUIRED_TABLES =
-      List.of("users", "tickets", "comments", "ticket_history");
+      List.of("users", "tickets", "comments", "ticket_history", "ticket_feedback");
 
   private final DataSource dataSource;
   private final String jwtSecret;
@@ -40,7 +44,7 @@ public class StartupValidator implements ApplicationRunner {
     this.jwtSecret = jwtSecret;
   }
 
-  // Runs before anything else (DataInitializer has no explicit order).
+  /** Runs before anything else (DataInitializer has no explicit order). */
   @Override
   public void run(ApplicationArguments args) {
     if (!isSecretValid(jwtSecret)) {
@@ -71,7 +75,7 @@ public class StartupValidator implements ApplicationRunner {
         REQUIRED_TABLES.size(), users);
   }
 
-  // Reads table names from the current connection.
+  /** Reads table names from the current connection. */
   private List<String> readTables(Connection connection) throws Exception {
     DatabaseMetaData meta = connection.getMetaData();
     List<String> tables = new ArrayList<>();
@@ -84,7 +88,7 @@ public class StartupValidator implements ApplicationRunner {
     return tables;
   }
 
-  // Counts users without going through JPA (repositories may not be ready yet).
+  /** Counts users without going through JPA (repositories may not be ready yet). */
   private long countUsers() {
     try (Connection connection = dataSource.getConnection();
         var statement = connection.createStatement();
@@ -96,8 +100,10 @@ public class StartupValidator implements ApplicationRunner {
     }
   }
 
-  // A secret is valid when it reaches 32 UTF-8 bytes (same rule as JwtService).
-  // Public so SystemService and unit tests reuse the exact same rule.
+  /**
+   * A secret is valid when it reaches 32 UTF-8 bytes (same rule as JwtService).
+   * Public so SystemService and unit tests reuse the exact same rule.
+   */
   public static boolean isSecretValid(String secret) {
     if (secret == null) {
       return false;
@@ -109,8 +115,10 @@ public class StartupValidator implements ApplicationRunner {
     }
   }
 
-  // Required tables not present in the database (empty = schema ready).
-  // Public so SystemService and unit tests reuse the exact same rule.
+  /**
+   * Required tables not present in the database (empty = schema ready).
+   * Public so SystemService and unit tests reuse the exact same rule.
+   */
   public static List<String> missingTables(Set<String> found, List<String> required) {
     List<String> missing = new ArrayList<>();
     for (String table : required) {

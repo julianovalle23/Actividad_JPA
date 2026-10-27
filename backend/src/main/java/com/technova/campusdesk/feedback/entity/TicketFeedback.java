@@ -9,29 +9,31 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
-// Rating given by the requester once the ticket is CERRADA.
-// One feedback per ticket (OneToOne with shared primary key).
+/**
+ * Rating given by the requester once the ticket is CERRADA.
+ * One feedback per ticket (OneToOne with shared primary key).
+ */
 @Entity
 @Table(name = "ticket_feedback")
 public class TicketFeedback {
 
-  // Same value as the ticket id (shared PK).
+  /** Same value as the ticket id (shared PK). */
   @Id
   private Long id;
 
-  // Score from 1 to 5.
+  /** Score from 1 to 5. */
   @Column(name = "puntuacion", nullable = false)
   private Integer puntuacion;
 
-  // Optional comment, max 500 characters.
+  /** Optional comment, max 500 characters. */
   @Column(name = "comentario", length = 500)
   private String comentario;
 
-  // Creation timestamp.
+  /** Creation timestamp. */
   @Column(name = "fecha_creacion", nullable = false, updatable = false)
   private Instant fechaCreacion;
 
-  // The ticket this feedback belongs to (OneToOne).
+  /** The ticket this feedback belongs to (OneToOne). */
   @OneToOne(optional = false)
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
   private Ticket ticket;

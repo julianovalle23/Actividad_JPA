@@ -13,8 +13,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-// Filter running on each request: reads the token and marks who is coming in.
-// Never answers 401 here; the entry point decides that later.
+/**
+ * Filter running on each request: reads the token and marks who is coming in.
+ * Never answers 401 here; the entry point decides that later.
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwt;

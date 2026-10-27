@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-// Answers 401 when authentication is missing or the token is useless.
+/** Answers 401 when authentication is missing or the token is useless. */
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

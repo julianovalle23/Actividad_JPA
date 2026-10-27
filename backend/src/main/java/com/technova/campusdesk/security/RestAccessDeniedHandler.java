@@ -12,7 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-// Answers 403 when the user is in but has no permission.
+/** Answers 403 when the user is in but has no permission. */
 @Component
 public class RestAccessDeniedHandler implements AccessDeniedHandler {
 

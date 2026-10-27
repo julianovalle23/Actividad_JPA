@@ -7,7 +7,7 @@ import com.technova.campusdesk.ticket.entity.TicketStatus;
 import com.technova.campusdesk.user.dto.UserSummary;
 import java.time.Instant;
 
-// Full ticket view (technician may be empty).
+/** Full ticket view (technician may be empty). */
 public record TicketResponse(
     Long id,
     String title,
@@ -20,7 +20,7 @@ public record TicketResponse(
     Instant createdAt,
     Instant updatedAt) {
 
-  // Converts the entity into a response.
+  /** Converts the entity into a response. */
   public static TicketResponse from(Ticket ticket) {
     return new TicketResponse(ticket.getId(), ticket.getTitle(), ticket.getDescription(),
         ticket.getCategory(), ticket.getPriority(), ticket.getStatus(),

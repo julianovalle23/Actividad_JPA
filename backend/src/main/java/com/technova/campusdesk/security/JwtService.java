@@ -11,14 +11,14 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-// Creates and verifies signed JWT tokens.
+/** Creates and verifies signed JWT tokens. */
 @Service
 public class JwtService {
 
   private final SecretKey key;
   private final long expirationMillis;
 
-  // The secret comes from the environment and must be 32+ characters.
+  /** The secret comes from the environment and must be 32+ characters. */
   public JwtService(
       @Value("${app.jwt.secret}") String secret,
       @Value("${app.jwt.expiration-minutes}") long expirationMinutes) {
@@ -29,7 +29,7 @@ public class JwtService {
     this.expirationMillis = expirationMinutes * 60_000;
   }
 
-  // Generates a token with the email as owner and the role as extra data.
+  /** Generates a token with the email as owner and the role as extra data. */
   public String generateToken(User user) {
     Date now = new Date();
     return Jwts.builder()
@@ -41,12 +41,12 @@ public class JwtService {
         .compact();
   }
 
-  // Lifetime in seconds (reported at login).
+  /** Lifetime in seconds (reported at login). */
   public long getExpirationSeconds() {
     return expirationMillis / 1000;
   }
 
-  // Reads a token and confirms signature and validity. Throws JwtException otherwise.
+  /** Reads a token and confirms signature and validity. Throws JwtException otherwise. */
   public Claims parse(String token) throws JwtException {
     return Jwts.parser()
         .verifyWith(key)

@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// User login and registration.
+/** User login and registration. */
 @Service
 public class AuthService {
 
@@ -23,14 +23,14 @@ public class AuthService {
   private final PasswordEncoder passwords;
   private final JwtService jwt;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public AuthService(UserRepository users, PasswordEncoder passwords, JwtService jwt) {
     this.users = users;
     this.passwords = passwords;
     this.jwt = jwt;
   }
 
-  // Creates a new account. Always born USER, ignores whatever the client sends.
+  /** Creates a new account. Always born USER, ignores whatever the client sends. */
   @Transactional
   public UserResponse register(RegisterRequest request) {
     String email = request.email().trim().toLowerCase();
@@ -42,7 +42,7 @@ public class AuthService {
     return UserResponse.from(users.save(user));
   }
 
-  // Returns the current authenticated user (fresh from the database).
+  /** Returns the current authenticated user (fresh from the database). */
   @Transactional(readOnly = true)
   public UserResponse me(AuthUser actor) {
     return users.findById(actor.id())
@@ -50,7 +50,7 @@ public class AuthService {
         .orElseThrow(() -> new BadCredentialsException("Credenciales invalidas"));
   }
 
-  // Checks email and password, then returns the JWT token.
+  /** Checks email and password, then returns the JWT token. */
   @Transactional(readOnly = true)
   public AuthResponse login(LoginRequest request) {
     String email = request.email().trim().toLowerCase();

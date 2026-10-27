@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// User lookups. The whole controller is ADMIN only.
+/** User lookups. The whole controller is ADMIN only. */
 @RestController
 @RequestMapping("/api/users")
 @PreAuthorize("hasRole('ADMIN')")
@@ -18,24 +18,24 @@ public class UserController {
 
   private final UserService userService;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public UserController(UserService userService) {
     this.userService = userService;
   }
 
-  // Lists technicians (for assigning tickets).
+  /** Lists technicians (for assigning tickets). */
   @GetMapping("/technicians")
   public List<UserResponse> listTechnicians() {
     return userService.listTechnicians();
   }
 
-  // Lists all users.
+  /** Lists all users. */
   @GetMapping
   public List<UserResponse> listAll() {
     return userService.listAll();
   }
 
-  // Promotes an existing USER to TECHNICIAN. This controller is ADMIN only.
+  /** Promotes an existing USER to TECHNICIAN. This controller is ADMIN only. */
   @PostMapping("/{id}/technician")
   public UserResponse promoteToTechnician(@PathVariable Long id) {
     return userService.promoteToTechnician(id);

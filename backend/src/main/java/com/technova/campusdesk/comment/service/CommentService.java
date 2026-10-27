@@ -16,7 +16,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Ticket comments.
+/** Ticket comments. */
 @Service
 public class CommentService {
 
@@ -24,7 +24,7 @@ public class CommentService {
   private final UserRepository users;
   private final TicketService ticketService;
 
-  // Spring only injects constructor dependencies.
+  /** Spring only injects constructor dependencies. */
   public CommentService(CommentRepository comments, UserRepository users,
       TicketService ticketService) {
     this.comments = comments;
@@ -32,7 +32,7 @@ public class CommentService {
     this.ticketService = ticketService;
   }
 
-  // Lists comments in chronological order (only with ticket access).
+  /** Lists comments in chronological order (only with ticket access). */
   @Transactional(readOnly = true)
   public List<CommentResponse> list(Long ticketId, AuthUser actor) {
     ticketService.findAccessibleTicket(ticketId, actor);
@@ -40,8 +40,10 @@ public class CommentService {
         .stream().map(CommentResponse::from).toList();
   }
 
-  // Adds a comment with the authenticated user as author.
-  // A CERRADA ticket accepts no comments.
+  /**
+   * Adds a comment with the authenticated user as author.
+   * A CERRADA ticket accepts no comments.
+   */
   @Transactional
   public CommentResponse add(Long ticketId, CommentRequest request, AuthUser actor) {
     Ticket ticket = ticketService.findAccessibleTicket(ticketId, actor);

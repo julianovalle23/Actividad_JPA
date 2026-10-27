@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,51 +16,53 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
-// Support incident reported by a user.
-// Indexes are created by schema.sql (not duplicated here).
+/**
+ * Support incident reported by a user.
+ * Indexes are created by schema.sql (not duplicated here).
+ */
 @Entity
 @Table(name = "tickets")
 public class Ticket {
 
-  // Auto-generated identifier.
+  /** Auto-generated identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  // Short problem title.
+  /** Short problem title. */
   @Column(nullable = false, length = 150)
   private String title;
 
-  // Problem details.
+  /** Problem details. */
   @Column(nullable = false, length = 2000)
   private String description;
 
-  // Type: HARDWARE, SOFTWARE, REDES, ACCESOS or OTROS.
+  /** Type: HARDWARE, SOFTWARE, REDES, ACCESOS or OTROS. */
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private TicketCategory category;
 
-  // Urgency: BAJA, MEDIA, ALTA or CRITICA.
+  /** Urgency: BAJA, MEDIA, ALTA or CRITICA. */
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private TicketPriority priority;
 
-  // Current lifecycle status.
+  /** Current lifecycle status. */
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private TicketStatus status;
 
-  // Who reported the ticket (required).
-  @ManyToOne(optional = false)
+  /** Who reported the ticket (required). */
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "requester_id", nullable = false)
   private User requester;
 
-  // Technician handling it (empty until an ADMIN assigns one).
-  @ManyToOne
+  /** Technician handling it (empty until an ADMIN assigns one). */
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "assigned_technician_id")
   private User technician;
 
-  // Creation and last-update dates, set automatically.
+  /** Creation and last-update dates, set automatically. */
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
@@ -70,14 +73,14 @@ public class Ticket {
     // Empty constructor required by JPA.
   }
 
-  // Sets both dates right before the first save.
+  /** Sets both dates right before the first save. */
   @PrePersist
   void onCreate() {
     createdAt = Instant.now();
     updatedAt = createdAt;
   }
 
-  // Refreshes the date every time the ticket changes.
+  /** Refreshes the date every time the ticket changes. */
   @PreUpdate
   void onUpdate() {
     updatedAt = Instant.now();
