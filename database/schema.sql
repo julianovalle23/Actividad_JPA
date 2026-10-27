@@ -113,7 +113,7 @@ CREATE INDEX idx_comments_author         ON comments (author_id);
 -- ---------------------------------------------------------------------
 CREATE TABLE ticket_feedback (
     id              BIGINT       PRIMARY KEY,
-    puntuacion      SMALLINT     NOT NULL,
+    puntuacion      INTEGER      NOT NULL,           -- INTEGER = Java Integer (ddl-auto=validate)
     comentario      VARCHAR(500),
     fecha_creacion  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

@@ -10,8 +10,8 @@
 --   usuario2@technova.com   (USER)
 --
 -- Passwords below are stored as BCrypt hashes, never in plain text.
--- Demo passwords are NOT published: configure local credentials with
--- environment variables (see README.md, "Local credentials").
+-- The demo passwords are listed in README.md ("Cuentas de demostración").
+-- Development / evaluation only: change them in any other environment.
 -- =====================================================================
 
 BEGIN;
